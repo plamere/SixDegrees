@@ -1,0 +1,1 @@
+rsync -avz  . echonest@ec2-54-227-6-186.compute-1.amazonaws.com:apps/SixDegrees2/db

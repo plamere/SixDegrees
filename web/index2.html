@@ -1,0 +1,794 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title> Six Degrees of XXX</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.3/yeti/bootstrap.min.css"> 
+     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+     <script src="lib/bootstrap3-typeahead.min.js"></script>
+     <link href="styles.css" rel="stylesheet" media="screen">
+</head>
+
+<body>
+
+<!-- Fixed navbar -->
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Six Degrees of Black Sabbath</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="index.html">Home</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Gallery<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="?gallery=top">Popular paths</a></li>
+            <li><a href="?gallery=longest">Longest paths</a></li>
+            <li><a href="?gallery=top_connected_artists">Most connected artists</a></li>
+            <li><a href="?gallery=most_central_artists">Most central artists</a></li>
+            <li><a href="?gallery=top_starting_artists">Top Starting Artists</a></li>
+            <li><a href="?gallery=top_ending_artists">Top Ending Artists</a></li>
+            <li><a href="?gallery=most_bypassed_artists">Most bypassed artists</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Feedback<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Propose an artist connection</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class=""><a href="about.html">About</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Main component for a primary marketing message or call to action -->
+  <div class="jumbotron">
+    <h1>Six Degrees of Black Sabbath</h1>
+    <p> Finds paths between any two artists </p>
+    <p>
+    </p>
+
+    <div id="search" class="form-inline">
+        <div class="form-group col-xs-4">
+            <input type="text" 
+                placeholder="beginning artist" data-provide="typeahead" class="form-control artist-input" id="source" value="">
+        </div>
+        <div class="form-group col-xs-4">
+            <input type="text"
+                placeholder="ending artist" class="typeahead form-control artist-input" id="dest" value="">
+        </div>
+        <button class="btn btn-primary btn-default" id='go' type="button">  Find Path</button>
+    </div>
+    <div id="info"></div>
+  </div>
+
+  <div class="results" id="results"> </div>
+
+  <div class="results" id="gallery-table"> 
+        <h3 id="gallery-title"> Most Popular Paths </h3>
+        <div class="info-text" id="gallery-info">
+            <p>
+            These are some of the most frequently explored pathways 
+            </p>
+        </div>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr> <th> Visits </th> <th> Starting Artist </th> <th> Ending Artist </th> <th> Path Length</th></tr>
+            </thead>
+            <tbody id="gallery-table-body">
+            </tbody>
+        </table>
+  </div>
+  <div class="results" id="neighbor-table"> 
+        <h3> Connections for <span id="neighbor-name"></span></h3>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr> <th> Connection Strength </th> <th> Strongest Connection</th> <th> With whom</th></tr>
+            </thead>
+            <tbody id="neighbor-table-body"> </tbody>
+        </table>
+  </div>
+  <div class="results" id="artist-table"> 
+        <h3 id="artist-table-title"></h3>
+            <div class="info-text" id="artist-info">
+                <p>
+                These are some of the most frequently explored pathways 
+                </p>
+            </div>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr> <th id="artist-table-column-name"> Connections</th> <th> Artist </th></tr>
+            </thead>
+            <tbody id="artist-table-body"> </tbody>
+        </table>
+  </div>
+
+  <footer>
+      <small>
+      <p> Written by <a href="http://twitter.com/plamere">Paul Lamere</a>. Powered by <a href="http://the.echonest.com">The Echo Nest </a>,
+        <a href="http://youtube.com">Youtube</a> and <a href="http://musicbrainz.org">musicbrainz</a>
+      </small>
+  </footer>
+</div> <!-- /container -->
+<script>
+
+
+var host = "http://ec2-54-227-6-186.compute-1.amazonaws.com/6dobs/";
+var host = "http://localhost:9922/6dobs/";
+jQuery.ajaxSettings.traditional = true;  
+var theSkipList = [];
+
+function info(s) {
+    $("#info").text(s);
+}
+
+function error(s) {
+    $("#info").text(s);
+}
+
+
+var youtubeV2Key = "AI39si5VZPohShsObp93HySUYIZlzQG2ucfKLJ1BsHaOH0GV8LclernQIdBSSAQDpqCdZKEem-NIDxxfElwExk2N02UKbcttPg";
+var youtubeV3Key = "AIzaSyC76NoveGpJKCnt8TiesaLfzp3R72kNTIw";
+
+function youtubeSearch(query, div) {
+    var base = "https://www.googleapis.com/youtube/v3/";
+
+    $.getJSON(base + "search",
+        {
+            q:query,
+            part:'snippet',
+            type:'video',
+            'order':'relevance',
+            videoEmbeddable:true,
+            key:youtubeV3Key
+        },
+
+        function(response) {
+            console.log("Got data", response);
+            if (response.items.length > 0) {
+                var video = response.items[0];
+                showVideo(video, div);
+            }
+        },
+
+        function(data) {
+            console.log("youtube error", data);
+        }
+    );
+}
+
+function showVideo(video, div) {
+    console.log('video', video.snippet.title);
+    var idiv = $("<div>");
+    var img = $("<img class='thumbnail'>").attr('src', video.snippet.thumbnails.high.url);
+    var title = video.snippet.title;
+    var tdiv = $("<div>");
+
+    idiv.append(img);
+    tdiv.append(title);
+
+    div.append(idiv);
+    div.append(tdiv);
+
+    img.click(function() {
+        var iframe = $("<iframe webkitallowfullscreen mozallowfullscreen allowfullscreen>");
+        iframe.attr('width', '480');
+        iframe.attr('height', '360');
+        iframe.attr('height', '360');
+        iframe.attr('src', 'http://www.youtube.com/embed/' + video.id.videoId + "?autoplay=1&fs=1&rel=0");
+        idiv.empty();
+        idiv.append(iframe);
+    });
+}
+
+
+function isSingleWord(s) {
+    return s.indexOf(' ') === -1;
+}
+
+function getSkipList(artists) {
+    var skiplist = [];
+
+    _.each(artists, function(artist) {
+        skiplist.push(artist.id);
+    });
+    return skiplist;
+}
+
+function showPath(data) {
+    $(".results").hide();
+    $("#results").show();
+    var results = $("#results");
+    info("");
+    results.empty();
+
+    results.append($("<h3>").text("From " +  data.src.name + ' to ' + data.dest.name + " in " + data.path.links.length + " steps."));
+    $("#source").val(data.src.name);
+    $("#dest").val(data.dest.name);
+    setURL(data.src.id, data.dest.id, getSkipList(data.skips));
+
+    var ul = $("<ol>");
+    results.append(ul);
+
+    _.each(data.path.links, function(link, index, list) {
+        var isLast = index == list.length -  1;
+        var li = $("<li class='step'>");
+        var sub = $('<div class="subtext">');
+        var slink = link.links[0];
+        var div = $("<div class='ytdiv'>");
+        if ('song' in slink) {
+            var others = "";
+            if (link.links.length > 2) {
+                others = " and " + (link.links.length - 1) + " others."
+            }
+            sub.html(link.src_name + " " + slink.phrase + " " + link.dest_name + ' on the song <b>' + slink.song + "</b>" + others);
+            // youtubeSearch(link.src_name + " " + slink.song + " " + link.dest_name, div);
+            youtubeSearch(link.src_name + " " + link.dest_name, div);
+        } else {
+            sub.text(link.src_name + " " + slink.phrase + " " + link.dest_name);
+            if (false && isSingleWord(link.src_name)) {
+                youtubeSearch(link.src_name + " " + link.dest_name, div);
+            } else {
+                youtubeSearch(link.src_name, div);
+            }
+        }
+        // li.append(link.src_name + " to " + link.dest_name);
+        var name = $("<h2>").text(link.src_name);
+
+        li.append(name);
+        li.append(div);
+
+        if (index > 0) {
+            var skipButton = $("<button>");
+            skipButton.text('bypass');
+            skipButton.addClass('btn btn-xs');
+            skipButton.click(function() {
+                theSkipList.push(link.src);
+                fetchPath(data.src.name, data.dest.name, theSkipList);
+            });
+            li.append(skipButton);
+        }
+            
+        var connectionButton = $("<button>");
+            connectionButton.text('connections');
+            connectionButton.addClass('btn btn-xs');
+            connectionButton.click(function() {
+                var link_string = '?neighbors=' + link.src;
+                window.location = link_string;
+            });
+        li.append(connectionButton);
+
+        li.append(sub);
+        ul.append(li);
+
+        if (isLast) {
+            var li = $("<li class='step'>");
+            var div = $("<div class='ytdiv'>");
+
+            youtubeSearch(link.dest_name, div);
+            var name = $("<h2>").text(link.dest_name);
+            li.append(name);
+            li.append(div);
+            ul.append(li);
+        }
+    });
+
+    if (data.skips.length > 0) {
+        var skipDiv = $("<div>");
+        skipDiv.append($("<h2>").text("Skips"));
+        var ul = $("<ul>");
+        _.each(data.skips, function(skip, i) {
+            ul.append($("<li>").append(skip.name));
+        });
+        skipDiv.append(ul);
+        results.append(skipDiv);
+    }
+
+    results.append($("<p>").text("Path length: " + data.path.links.length + "  Path score: " + data.path.score));
+    results.append($("<p>").text("Computation time: " + Math.round(data.time) + " milliseconds"));
+}
+
+function showPath2(data) {
+    $(".results").hide();
+    $("#results").show();
+    var results = $("#results");
+    info("");
+    results.empty();
+
+    results.append($("<h3>").text("From " +  data.src.name + ' to ' + data.dest.name + " in " + data.path.links.length + " steps."));
+    $("#source").val(data.src.name);
+    $("#dest").val(data.dest.name);
+    setURL(data.src.id, data.dest.id, getSkipList(data.skips));
+
+    var ul = $("<ol>");
+    results.append(ul);
+
+    _.each(data.path.links, function(link, index, list) {
+        var isFirst = index == 0;
+        var isLast = index == list.length -  1;
+        var li = $("<li class='step'>");
+        var sub = $('<div class="subtext">');
+        var slink = link.links[0];
+        var div = $("<div class='ytdiv'>");
+
+
+        if ('song' in slink) {
+            var others = "";
+            if (link.links.length > 2) {
+                others = " and " + (link.links.length - 1) + " others."
+            }
+            sub.html(link.src_name + " " + slink.phrase + " " + link.dest_name + ' on the song <b>' + slink.song + "</b>" + others);
+            // youtubeSearch(link.src_name + " " + slink.song + " " + link.dest_name, div);
+            youtubeSearch(link.src_name + " " + link.dest_name, div);
+        } else {
+            sub.text(link.src_name + " " + slink.phrase + " " + link.dest_name);
+            if (false && isSingleWord(link.src_name)) {
+                youtubeSearch(link.src_name + " " + link.dest_name, div);
+            } else {
+                youtubeSearch(link.src_name, div);
+            }
+        }
+        // li.append(link.src_name + " to " + link.dest_name);
+        var name = $("<h2>").text(link.src_name);
+
+        li.append(name);
+        li.append(div);
+
+        if (index > 0) {
+            var skipButton = $("<button>");
+            skipButton.text('bypass');
+            skipButton.addClass('btn btn-xs');
+            skipButton.click(function() {
+                theSkipList.push(link.src);
+                fetchPath(data.src.name, data.dest.name, theSkipList);
+            });
+            li.append(skipButton);
+        }
+            
+        var connectionButton = $("<button>");
+            connectionButton.text('connections');
+            connectionButton.addClass('btn btn-xs');
+            connectionButton.click(function() {
+                var link_string = '?neighbors=' + link.src;
+                window.location = link_string;
+            });
+        li.append(connectionButton);
+
+        li.append(sub);
+        ul.append(li);
+
+        if (isLast) {
+            var li = $("<li class='step'>");
+            var div = $("<div class='ytdiv'>");
+
+            youtubeSearch(link.dest_name, div);
+            var name = $("<h2>").text(link.dest_name);
+            li.append(name);
+            li.append(div);
+            ul.append(li);
+        }
+    });
+
+    if (data.skips.length > 0) {
+        var skipDiv = $("<div>");
+        skipDiv.append($("<h2>").text("Skips"));
+        var ul = $("<ul>");
+        _.each(data.skips, function(skip, i) {
+            ul.append($("<li>").append(skip.name));
+        });
+        skipDiv.append(ul);
+        results.append(skipDiv);
+    }
+
+    results.append($("<p>").text("Path length: " + data.path.links.length + "  Path score: " + data.path.score));
+    results.append($("<p>").text("Computation time: " + Math.round(data.time) + " milliseconds"));
+}
+
+function fetchPath(src, dest, skiplist) {
+    var args = {  src:src, dest:dest, skips:skiplist.join(',')} 
+    fetchPathViaArgs(args);
+}
+
+function fetchPathViaIds(src, dest, skiplist) {
+    var args = {  src_id:src, dest_id:dest, skips:skiplist.join(',')} 
+    fetchPathViaArgs(args);
+}
+
+function fetchPathViaArgs(args) {
+    var url = host + "path";
+    info("Generating the path ...");
+    $.getJSON(url, args, 
+        function(data) {
+            console.log('fp', data);
+            if (data.status == "OK") {
+                if (data.path && data.path.links && data.path.links.length > 0) {
+                    showPath2(data);
+                } else {
+                    info("Can't find a path between " + data.src.name + ' and ' + data.dest.name);
+                }
+            } else {
+                error("Sorry, " + data.message);
+            }
+            console.log("got path", data);
+        },
+
+        function(data) {
+            error("Trouble getting path");
+        }
+    );
+}
+
+function fetchArtistNeighbors(aid) {
+    var url = host + "neighbors";
+    info("Fetching the neighbors ...");
+    $.getJSON(url, {src_id:aid}, 
+        function(data) {
+            console.log('fp', data);
+            if (data.status == "OK") {
+                if (data.neighbors && data.neighbors.links.length > 0) {
+                    info("");
+                    showNeighbors(data);
+                } else {
+                    info("Can't find neighbors");
+                }
+            } else {
+                error("Sorry, " + data.message);
+            }
+        },
+
+        function(data) {
+            error("Trouble getting neighbors");
+        }
+    );
+}
+
+function setURL(src, dest, skiplist) {
+    console.log('set url');
+    var p = '?src_id=' + src + '&dest_id=' + dest;
+    if (skiplist && skiplist.length > 0) {
+        p += '&skip=' + skiplist.join()
+    }
+    history.replaceState({}, document.title, p);
+}
+
+function urldecode(str) {
+   return decodeURIComponent((str+'').replace(/\+/g, '%20'));
+}
+
+function processParams() {
+    var params = {};
+    var q = document.URL.split('?')[1];
+    if(q != undefined){
+        q = q.split('&');
+        for(var i = 0; i < q.length; i++){
+            var pv = q[i].split('=');
+            var p = pv[0];
+            var v = pv[1];
+            params[p] = urldecode(v);
+        }
+    }
+
+    if ('skip' in params) {
+        theSkipList = params['skip'].split(',')
+    }
+
+    if ('src' in params && 'dest' in params) {
+        var src = params['src'];
+        var dest = params['dest'];
+        fetchPath(src, dest, theSkipList);
+    }  else if ('src_id' in params && 'dest_id' in params) {
+        var src = params['src_id'];
+        var dest = params['dest_id'];
+        $("#source").val(src);
+        $("#dest").val(dest);
+        fetchPathViaIds(src, dest, theSkipList);
+    } else if ('neighbors' in params) {
+        var id = params['neighbors'];
+        fetchArtistNeighbors(id);
+    } else if ('gallery' in params) {
+        var which = params['gallery'];
+        if (which === 'top') {
+            fetchMostPopularPaths();
+        } else if (which === 'longest') {
+            fetchLongestPaths();
+        } else if(which === 'top_connected_artists') {
+            fetchTopConnectedArtists();
+        } else if (which === 'most_central_artists') {
+            fetchMostCentralArtists();
+        } else if (which === 'most_bypassed_artists') {
+            fetchMostBypassedArtists();
+        } else if (which === 'top_starting_artists') {
+            fetchTopStartingArtists();
+        } else if (which === 'top_ending_artists') {
+            fetchTopEndingArtists();
+        }
+    } else {
+        /*
+        $("#source").val('Miley Cyrus');
+        $("#dest").val('Miles Davis');
+        */
+    }
+}
+
+function generatePath() {
+    var src = $("#source").val();
+    var dest = $("#dest").val();
+    theSkipList=[]
+    console.log('generate path', src, dest);
+    if (src.length > 0 && dest.length > 0) {
+        fetchPath(src, dest, theSkipList);
+    } else {
+        info("Enter the names of two artists");
+    }
+}
+
+
+function showPathsInGallery(title, info, paths) {
+    $(".results").hide();
+    $("#gallery-table").show();
+
+    $("#gallery-title").text(title);
+    $("#gallery-info").text(info);
+    var tbody = $("#gallery-table-body");
+    tbody.empty();
+    _.each(paths, function(path, i) {
+        var tr = $("<tr>");
+        tr.append($("<td>").text(path.visits));
+        tr.append($("<td>").text(path.src.name));
+        tr.append($("<td>").text(path.dest.name));
+        tr.append($("<td>").text(path.path_length));
+
+        tr.click(
+            function() {
+                var link_string = '?src_id=' + path.src.id + "&dest_id=" + path.dest.id + "&skips=" + path.skips;
+                window.location = link_string;
+            }
+        );
+        tbody.append(tr);
+    });
+}
+
+var connectionStrength = {
+    1: 'Very strong',
+    2: 'Quite Strong',
+    3: 'Strong',
+    5: 'Somewhat strong',
+    10: 'Moderate',
+    20: 'Weak',
+    21: 'tenuous',
+}
+
+function showNeighbors(data) {
+    $(".results").hide();
+    $("#neighbor-table").show();
+    var tbody = $("#neighbor-table-body");
+    $("#neighbor-name").text(data.src.name);
+    tbody.empty();
+    _.each(data.neighbors.links, function(link, i) {
+        var tr = $("<tr>");
+        tr.append($("<td>").text(connectionStrength[link.score]));
+        var theLink = link.main_link;
+        var others = link.total_links - 1;
+        if (others > 0) {
+           theLink += " and " + others + " other connections";
+        }
+        tr.append($("<td>").text(theLink));
+        tr.append($("<td>").text(link.dest_name));
+        tbody.append(tr);
+
+        tr.click(
+            function() {
+                var link_string = '?neighbors=' + link.dest;
+                window.location = link_string;
+            }
+        );
+    });
+}
+
+function now() {
+    return new Date().getTime();
+}
+
+function fetchMostPopularPaths() {   
+    var url = host + "popular_paths";
+    $.getJSON(url, { start:0, count:30, _:now() },
+        function(results) {
+            console.log('popular paths', results);
+            if (results.status == "OK") {
+                showPathsInGallery("Most Popular Paths", 
+                    "These are some of the frequently explored pathways in Six Degrees of Black Sabbath", results.paths)
+            } else {
+                error("trouble getting the most popular paths: " + results.message);
+            }
+            
+        },
+
+        function error() {
+            error("trouble getting the most popular paths");
+        }
+    );
+}
+
+function fetchLongestPaths() {   
+    var url = host + "longest_paths";
+    $.getJSON(url, { start:0, count:100, _:now() },
+        function(results) {
+            console.log('longest paths', results);
+            if (results.status == "OK") {
+                showPathsInGallery("Longest Paths", 
+                "These are some of the longest paths discovered so far in Six Degrees of Black Sabbath", results.paths)
+            } else {
+                error("trouble getting the longest paths: " + results.message);
+            }
+        },
+
+        function error() {
+            error("trouble getting the most popular paths");
+        }
+    );
+}
+
+function showArtistList(title, info, columnTitle, fieldName, artistList) {
+    console.log(title, artistList);
+    $(".results").hide();
+    $("#artist-table").show();
+    $("#artist-info").text(info);
+    $("#artist-table-title").text(title);
+    $("#artist-table-column-name").text(columnTitle);
+    var tbody = $("#artist-table-body");
+
+    tbody.empty();
+    _.each(artistList, function(artist, i) {
+        var tr = $("<tr>");
+        tr.append($("<td>").text(artist[fieldName]));
+        tr.append($("<td>").text(artist.name));
+        tbody.append(tr);
+        tr.click(
+            function() {
+                var link_string = '?neighbors=' + artist.id;
+                window.location = link_string;
+            }
+        );
+    });
+}
+
+function fetchTopConnectedArtists() {   
+    var url = host + "top_connected_artists";
+    $.getJSON(url, { count:300, _:now() },
+        function(results) {
+            if (results.status == "OK") {
+                var artists = results.top_connected_artists;
+                showArtistList("Most connected artists", 
+                    'Artists that have the most connections to other artists',
+                    'Connections', 'link_count', artists);
+            } else {
+                error("trouble getting the most connected artists: " + results.message);
+            }
+        },
+
+        function error() {
+            error("trouble getting the most connected artists");
+        }
+    );
+}
+
+function fetchMostCentralArtists() {   
+    var url = host + "most_central_artists";
+    $.getJSON(url, { count:300, _:now() },
+        function(results) {
+            if (results.status == "OK") {
+                var artists = results.most_central_artists;
+                showArtistList("Most central artists", 
+                    'Artists that most frequently occur on paths between other artists',
+                    'Centrality', 'count', artists)
+            } else {
+                error("trouble getting the most central artists: " + results.message);
+            }
+        },
+
+        function error() {
+            error("trouble getting the most central artists");
+        }
+    );
+}
+
+function fetchTopStartingArtists() {   
+    var url = host + "top_starting_artists";
+    $.getJSON(url, { count:300, _:now() },
+        function(results) {
+            if (results.status == "OK") {
+                var artists = results.top_starting_artists;
+                showArtistList("Top starting artists", 
+                    'Artists that most frequently used to start a path',
+                    'count', 'count', artists)
+            } else {
+                error("trouble getting the top starting artists: " + results.message);
+            }
+        },
+
+        function error() {
+            error("trouble getting the top starting artists");
+        }
+    );
+}
+
+function fetchTopEndingArtists() {   
+    var url = host + "top_ending_artists";
+    $.getJSON(url, { count:300, _:now() },
+        function(results) {
+            if (results.status == "OK") {
+                var artists = results.top_ending_artists;
+                showArtistList("Top ending artists", 
+                    'Artists that most frequently used to end a path',
+                    'count', 'count', artists)
+            } else {
+                error("trouble getting the top ending artists: " + results.message);
+            }
+        },
+
+        function error() {
+            error("trouble getting the top ending artists");
+        }
+    );
+}
+
+function fetchMostBypassedArtists() {   
+    var url = host + "most_bypassed_artists";
+    $.getJSON(url, { count:300, _:now() },
+        function(results) {
+            if (results.status == "OK") {
+                var artists = results.most_bypassed_artists;
+                showArtistList("Most bypassed artists", 
+                    'Artists that are most frequently bypassed',
+                    'Bypass Count', 'count', artists)
+            } else {
+                error("trouble getting the most bypassed artists: " + results.message);
+            }
+        },
+
+        function error() {
+            error("trouble getting the most bypassed artists");
+        }
+    );
+}
+
+
+function fetchArtistNames() {
+    $.getJSON("artist_names.js", function(data) {
+        $(".artist-input").typeahead({source:data});
+    });
+}
+
+function initUI() {
+    $(".results").hide();
+    $("#go").click(generatePath);
+}
+
+
+$(document).ready(
+    function() {
+        initUI();
+        fetchArtistNames();
+        console.log('ready');
+        processParams();
+    }
+);
+
+</script>
+</body>
+</html>

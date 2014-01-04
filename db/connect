@@ -1,0 +1,7 @@
+#  -h, --host=HOSTNAME      database server host or socket directory (default: "local socket")
+#  -p, --port=PORT          database server port (default: "5432")
+#  -U, --username=USERNAME  database user name (default: "plamere")
+#  -w, --no-password        never prompt for password
+#  -W, --password           force password prompt (should happen automatically)
+
+/Library/PostgreSQL/9.3/bin/psql -h  dca-dw01  -U musicbrainz musicbrainz

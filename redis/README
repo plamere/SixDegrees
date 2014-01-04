@@ -1,0 +1,7 @@
+To start the DB:
+
+% redis-server --port 6380
+
+To connect
+
+% redis-cli -p 6380 -n 1

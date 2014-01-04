@@ -1,0 +1,84 @@
+body {
+    padding-top:70px;
+    min-height:1000px;
+}
+
+#results {
+    width:960px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+}
+
+.subtext {
+    margin-top:30px;
+    margin-bottom:10px;
+    font-size:24px;
+    text-align:center;
+    margin-left:auto;
+    margin-right:auto;
+    position:relative;
+}
+
+.step {
+    width:650px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.ytdiv {
+}
+
+.tdiv {
+    font-size:12px;
+    margin:4px;
+}
+
+.bypass {
+    position:absolute;
+    right:-14px;
+    top:-5px;
+}
+
+
+.jumbotron {
+    width:900px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+}
+
+#search {
+    width:700px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+
+.jumbotron h1 {
+    font-size:54px;
+}
+
+.idiv {
+    width:640px;
+    height:390px;
+    margin-left:auto;
+    margin-right:auto;
+    cursor:pointer;
+    background-size:100%;
+    background-position:center;
+    background-repeat:no-repeat;
+    overflow:hidden;
+}
+
+
+.info-text {
+    margin:20px;
+}
+
+footer {
+    border-top-style:solid;
+    border-width:1px;
+    border-color:#ccc;
+    text-align:center;
+}
