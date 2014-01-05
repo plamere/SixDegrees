@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title> Six Degrees of XXX</title>
+    <title> Six Degrees of Black Sabbath</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
      <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
      <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
@@ -14,7 +14,7 @@
 <body>
 
 <!-- Fixed navbar -->
-<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -23,11 +23,10 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">Six Degrees of Black Sabbath</a>
+      <a class="navbar-brand" href="index.html">Six Degrees of Black Sabbath</a>
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="index.html">Home</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Gallery<b class="caret"></b></a>
           <ul class="dropdown-menu">
@@ -40,12 +39,14 @@
             <li><a href="?gallery=most_bypassed_artists">Most bypassed artists</a></li>
           </ul>
         </li>
+        <!--
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Feedback<b class="caret"></b></a>
           <ul class="dropdown-menu">
             <li><a href="#">Propose an artist connection</a></li>
           </ul>
         </li>
+        -->
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class=""><a href="about.html">About</a></li>
@@ -63,21 +64,25 @@
     <p>
     </p>
 
-    <div id="search" class="form-inline">
-        <div class="form-group col-xs-4">
+    <div id="search" class="form-inline" role="form">
+        <div class="form-group col-sm-5">
             <input type="text" 
                 placeholder="beginning artist" data-provide="typeahead" class="form-control artist-input" id="source" value="">
         </div>
-        <div class="form-group col-xs-4">
+        <div class="form-group col-sm-5">
             <input type="text"
                 placeholder="ending artist" class="typeahead form-control artist-input" id="dest" value="">
         </div>
-        <button class="btn btn-primary btn-default" id='go' type="button">  Find Path</button>
+        <div class="form-group col-sm-1">
+        <button class="btn btn-primary" id='go' type="button">Find Path</button>
+        </div>
     </div>
+    <br clear="both">
     <div id="info"></div>
   </div>
 
   <div class="results" id="results"> </div>
+
 
   <div class="results" id="gallery-table"> 
         <h3 id="gallery-title"> Most Popular Paths </h3>
@@ -94,6 +99,24 @@
             </tbody>
         </table>
   </div>
+
+  <div class="results" id="longest-path-gallery-table"> 
+        <h3 id="longest-path-gallery-title"> Longest Paths </h3>
+        <div class="longest-path-info-text" id="gallery-info">
+            <p>
+                These are some of the longest paths discovered so far in Six Degrees of Black Sabbath. (Note that paths
+                with skips are not considered as candidates for the longest path).
+            </p>
+        </div>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr> <th> Path Length </th> <th> Starting Artist </th> <th> Ending Artist </th></tr>
+            </thead>
+            <tbody id="longest-path-gallery-table-body">
+            </tbody>
+        </table>
+  </div>
+
   <div class="results" id="neighbor-table"> 
         <h3> Connections for <span id="neighbor-name"></span></h3>
         <table class="table table-striped table-hover">
@@ -118,13 +141,50 @@
         </table>
   </div>
 
+    <div class='tweet'>
+        <span id='tweet-span'> 
+            <a href="https://twitter.com/share" data-size="large" id='tweet' class="twitter-share-button" data-lang="en" data-count='none'>Tweet</a>
+            <script>!function(d,s,id){var
+            js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        </span>
+  </div>
+
   <footer>
       <small>
-      <p> Written by <a href="http://twitter.com/plamere">Paul Lamere</a>. Powered by <a href="http://the.echonest.com">The Echo Nest </a>,
-        <a href="http://youtube.com">Youtube</a> and <a href="http://musicbrainz.org">musicbrainz</a>
+      <p> Written by <a href="http://twitter.com/plamere">Paul Lamere</a>.  Powered by <a href="http://the.echonest.com">The Echo Nest </a>,
+        <a href="http://youtube.com">YouTube</a> and <a href="http://musicbrainz.org">MusicBrainz</a>
       </small>
   </footer>
 </div> <!-- /container -->
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 class="modal-title" id="myModalLabel">Is this a wrong video?</h3>
+      </div>
+      <div class="modal-body">
+            This video should be related to <b><span id="report-video-artist"> artist </span></b>. If it is not, then
+            please let us know by clicking on the report button.
+            <div id="report-video-info">
+                <h5 id="report-video-title"> The video title </h5>
+                <div>
+                    <img id="report-video-image" src="https://i.ytimg.com/vi/-WJhyNIGiE0/hqdefault.jpg" width=400px>
+                </div>
+                <!--<div id='report-query'> </div> -->
+                <div id="report-status"> </div>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id="issue-report" type="button" class="btn btn-danger">Report</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <script>
 
 
@@ -133,6 +193,9 @@ var host = "http://ec2-54-227-6-186.compute-1.amazonaws.com/6dobs/";
 jQuery.ajaxSettings.traditional = true;  
 var theSkipList = [];
 var nowPlaying = null;
+var WHICH_SRC = 0
+var WHICH_DEST = 1
+var WHICH_BOTH = 2
 
 function info(s) {
     $("#info").text(s);
@@ -143,26 +206,26 @@ function error(s) {
 }
 
 
-var youtubeV2Key = "AI39si5VZPohShsObp93HySUYIZlzQG2ucfKLJ1BsHaOH0GV8LclernQIdBSSAQDpqCdZKEem-NIDxxfElwExk2N02UKbcttPg";
 var youtubeV3Key = "AIzaSyC76NoveGpJKCnt8TiesaLfzp3R72kNTIw";
 
-function youtubeSearch(query, div) {
+function youtubeSearch(query, div, link, which) {
     var base = "https://www.googleapis.com/youtube/v3/";
-
-    $.getJSON(base + "search",
-        {
+    var params = {
             q:query,
             part:'snippet',
             type:'video',
+            maxResults:'1',
             'order':'relevance',
             videoEmbeddable:true,
             key:youtubeV3Key
-        },
+    };
+
+    $.getJSON(base + "search", params,
 
         function(response) {
             if (response.items.length > 0) {
                 var video = response.items[0];
-                showVideo2(video, div);
+                showVideo(video, div, link, which, params);
             }
         },
 
@@ -172,32 +235,64 @@ function youtubeSearch(query, div) {
     );
 }
 
-function showVideo(video, div) {
-    console.log('video', video.snippet.title);
-    var idiv = $("<div>");
-    var img = $("<img class='thumbnail'>").attr('src', video.snippet.thumbnails.high.url);
-    var title = video.snippet.title;
-    var tdiv = $("<div>");
 
-    idiv.append(img);
-    tdiv.append(title);
+function reportVideo(icon, video, link, which, params) {
+    // which ==  0 : src
+    // which ==  1 : dest
+    // which ==  2 : both
 
-    div.append(idiv);
-    div.append(tdiv);
+    $("#report-status").text("");
+    if (which == WHICH_BOTH) {
+        $("#report-video-artist").text(link.src_name + " and " + link.dest_name);
+    } else if (which == WHICH_SRC) {
+        $("#report-video-artist").text(link.src_name);
+    } else if (which == WHICH_DEST) {
+        $("#report-video-artist").text(link.dest_name);
+    } 
 
-    img.click(function() {
-        var iframe = $("<iframe webkitallowfullscreen mozallowfullscreen allowfullscreen>");
-        iframe.attr('width', '480');
-        iframe.attr('height', '360');
-        iframe.attr('height', '360');
-        iframe.attr('src', 'http://www.youtube.com/embed/' + video.id.videoId + "?autoplay=1&fs=1&rel=0");
-        idiv.empty();
-        idiv.append(iframe);
+    $("#report-video-title").text(video.snippet.title);
+    $("#report-video-image").attr('src', video.snippet.thumbnails.high.url);
+    $("#report-query").text(params.q);
+    $("#issue-report").off();
+    $("#issue-report").click(function() {
+        icon.removeClass('glyphicon-flag');
+        icon.addClass('glyphicon-ok');
+        icon.attr('title', 'This video has been reported');
+        $("#report-status").text("Video reported. Thanks!");
+
+        postVideoReport(video, link, which, params);
+
+        setTimeout(function() {
+            $('#myModal').modal('hide')
+        }, 1000);
+
     });
+    $('#myModal').modal();
 }
 
-function showVideo2(video, div) {
-    console.log('video', video.snippet.title);
+function postVideoReport(video, link, which, params) {
+    var url = host + "report_video";
+    var args = {
+        video_id:video.id.videoId,
+        src: which == WHICH_DEST ? link.dest : link.src,
+        dest: which == WHICH_SRC ? link.src : link.dest,
+        q:params.q
+    };
+    
+    $.getJSON(url, args, 
+        function(data) {
+            if (data.status == "OK") {
+            } 
+        },
+
+        function(data) {
+            error("Trouble ...");
+        }
+    );
+}
+
+
+function showVideo(video, div, link, which, params) {
     var idiv = $("<div class='idiv'>");
 
     var img = $("<img class='thumbnail'>").attr('src', video.snippet.thumbnails.high.url);
@@ -206,8 +301,23 @@ function showVideo2(video, div) {
 
 
     idiv.css("background-image", "url(" + video.snippet.thumbnails.high.url + ")");
+    var playButton = $("<img class='playbutton play'>").attr('src', 'images/play.png');
+    idiv.append(playButton);
     //idiv.append(img);
     tdiv.append(title);
+
+    var reportButton=$('<a class="pull-right btn btn-xs">');
+    var icon = $("<i class='glyphicon glyphicon-flag'>");
+    icon.attr('title', 'Flag this as a wrong video for this artist');
+    reportButton.append(icon);
+    reportButton.click(function() {
+        if (icon.hasClass('glyphicon-flag')) {
+            reportVideo(icon, video, link, which, params);
+        } 
+    });
+
+
+    tdiv.append(reportButton);
 
     div.append(idiv);
     div.append(tdiv);
@@ -243,25 +353,32 @@ function getSkipList(artists) {
     return skiplist;
 }
 
-function showPath2(data) {
+function showPath(data) {
     $(".results").hide();
     $("#results").show();
     var results = $("#results");
     info("");
     results.empty();
 
-    results.append($("<h2>").text("From " +  data.src.name + ' to ' + data.dest.name + " in " + data.path.links.length + " steps."));
+    var pathDescription = "From " +  data.src.name + ' to ' + data.dest.name + " in " + data.path.links.length + " steps.";
+    results.append($("<h2>").text(pathDescription));
+    setURL(pathDescription, data.src.id, data.dest.id, getSkipList(data.skips));
+
     $("#source").val(data.src.name);
     $("#dest").val(data.dest.name);
-    setURL(data.src.id, data.dest.id, getSkipList(data.skips));
 
     var ul = $("<div>");
     results.append(ul);
 
     var li = $("<div class='step'>");
     var sub = $('<div class="subtext well">');
+    var ytdiv = $("<div class='ytdiv'>");
+
     sub.html("We start with " + aname(data.src.name, data.src.id));
     li.append(sub);
+    li.append(ytdiv);
+    var link = data.path.links[0];
+    youtubeSearch(link.src_name, ytdiv, link, WHICH_SRC);
     ul.append(li);
 
     _.each(data.path.links, function(link, index, list) {
@@ -272,26 +389,25 @@ function showPath2(data) {
         var slink = link.links[0];
         var ytdiv = $("<div class='ytdiv'>");
 
-
         if ('song' in slink) {
             var others = "";
             if (link.links.length > 2) {
                 others = " and " + (link.total_links - 1) + " others."
             }
-            sub.html(link.src_name + " " + slink.phrase + " " + aname(link.dest_name, link.dest) + ' on the song <b>' + slink.song + "</b>" + others);
-            // youtubeSearch(link.src_name + " " + slink.song + " " + link.dest_name, ytdiv);
-            youtubeSearch(link.src_name + " " + link.dest_name, ytdiv);
+            sub.html(link.src_name + " " + slink.phrase + " " 
+                + aname(link.dest_name, link.dest) + ' on the song <b>' + slink.song + "</b>" + others);
+            youtubeSearch(link.src_name + " " + link.dest_name, ytdiv, link, WHICH_BOTH);
         } else {
             sub.html(link.src_name + " " + slink.phrase + " " + aname(link.dest_name, link.dest));
             if (false && isSingleWord(link.src_name)) {
-                youtubeSearch(link.src_name + " " + link.dest_name, ytdiv);
+                youtubeSearch(link.src_name + " " + link.dest_name, ytdiv, link, WHICH_BOTH);
             } else {
-                youtubeSearch(link.src_name, ytdiv);
+                youtubeSearch(link.dest_name, ytdiv, link, WHICH_DEST);
             }
         }
         var name = $("<h2>").text(link.src_name);
-        li.append(ytdiv);
         li.append(sub);
+        li.append(ytdiv);
 
         //var bp = $('<div class="bypass">')
         if (!isLast) {
@@ -300,7 +416,7 @@ function showPath2(data) {
             skipButton.attr('title', 'bypass ' + link.dest_name);
             skipButton.click(function() {
                 theSkipList.push(link.dest);
-                fetchPath(data.src.name, data.dest.name, theSkipList);
+                gotoPath(data.src.id, data.dest.id, theSkipList);
             });
             sub.append(skipButton);
         }
@@ -308,29 +424,45 @@ function showPath2(data) {
 
         ul.append(li);
 
+        /*
         if (isLast) {
             var li = $("<div class='step'>");
             var ytdiv = $("<div class='ytdiv'>");
-
-            youtubeSearch(link.dest_name, ytdiv);
+            youtubeSearch(link.dest_name, ytdiv, link);
             li.append(ytdiv);
             ul.append(li);
         }
+        */
     });
 
     if (data.skips.length > 0) {
-        var skipDiv = $("<div>");
-        skipDiv.append($("<h2>").text("Skips"));
-        var ul = $("<ul>");
+        var skipDiv = $("<div id='skiplist'>");
+        skipDiv.append($("<span>").text("This path skips: "));
+        var ul = $("<span>");
         _.each(data.skips, function(skip, i) {
-            ul.append($("<li>").append(skip.name));
+            var anchor = $("<a class='skipped' title='unskip this artist'>").text(skip.name);
+            anchor.click(function() {
+                var skipList = [];
+                _.each(data.skips, function(askip, i) {
+                    if (skip.id != askip.id) {
+                        skipList.push(askip.id);
+                    }
+                });
+                gotoPath(data.src.id, data.dest.id, skipList);
+            });
+            ul.append(anchor);
         });
         skipDiv.append(ul);
         results.append(skipDiv);
     }
 
-    results.append($("<p>").text("Path length: " + data.path.links.length + "  Path score: " + data.path.score));
-    results.append($("<p>").text("Computation time: " + Math.round(data.time) + " milliseconds"));
+    var lastStep = $("<div class='step'>");
+    var pathFooter = $("<div id='path-footer' class='pathfooter-text well'>");
+    pathFooter.append($("<p>").text("Path length: " + data.path.links.length + "  Path score: " + data.path.score));
+    pathFooter.append($("<p>").text("Computation time: " + Math.round(data.time) + " milliseconds"));
+    lastStep.append(pathFooter);
+    results.append(lastStep);
+    tweetSetup();
 }
 
 function aname(name, id) {
@@ -348,22 +480,25 @@ function fetchPathViaIds(src, dest, skiplist) {
     fetchPathViaArgs(args);
 }
 
+function gotoPath(src, dest, skips) {
+    var link_string = '?src_id=' + src + "&dest_id=" + dest + "&skip=" + skips.join(',');
+    window.location = link_string;
+}
+
 function fetchPathViaArgs(args) {
     var url = host + "path";
     info("Generating the path ...");
     $.getJSON(url, args, 
         function(data) {
-            console.log('fp', data);
             if (data.status == "OK") {
                 if (data.path && data.path.links && data.path.links.length > 0) {
-                    showPath2(data);
+                    showPath(data);
                 } else {
                     info("Can't find a path between " + data.src.name + ' and ' + data.dest.name);
                 }
             } else {
                 error("Sorry, " + data.message);
             }
-            console.log("got path", data);
         },
 
         function(data) {
@@ -377,7 +512,6 @@ function fetchArtistNeighbors(aid) {
     info("Fetching the neighbors ...");
     $.getJSON(url, {src_id:aid}, 
         function(data) {
-            console.log('fp', data);
             if (data.status == "OK") {
                 if (data.neighbors && data.neighbors.links.length > 0) {
                     info("");
@@ -396,13 +530,13 @@ function fetchArtistNeighbors(aid) {
     );
 }
 
-function setURL(src, dest, skiplist) {
-    console.log('set url');
+function setURL(title, src, dest, skiplist) {
+    document.title = title;
     var p = '?src_id=' + src + '&dest_id=' + dest;
     if (skiplist && skiplist.length > 0) {
         p += '&skip=' + skiplist.join()
     }
-    history.replaceState({}, document.title, p);
+    history.replaceState({}, title, p);
 }
 
 function urldecode(str) {
@@ -434,8 +568,6 @@ function processParams() {
     }  else if ('src_id' in params && 'dest_id' in params) {
         var src = params['src_id'];
         var dest = params['dest_id'];
-        $("#source").val(src);
-        $("#dest").val(dest);
         fetchPathViaIds(src, dest, theSkipList);
     } else if ('neighbors' in params) {
         var id = params['neighbors'];
@@ -458,10 +590,6 @@ function processParams() {
             fetchTopEndingArtists();
         }
     } else {
-        /*
-        $("#source").val('Miley Cyrus');
-        $("#dest").val('Miles Davis');
-        */
     }
 }
 
@@ -469,7 +597,6 @@ function generatePath() {
     var src = $("#source").val();
     var dest = $("#dest").val();
     theSkipList=[]
-    console.log('generate path', src, dest);
     if (src.length > 0 && dest.length > 0) {
         fetchPath(src, dest, theSkipList);
     } else {
@@ -485,11 +612,8 @@ function showPathsInGallery(title, info, paths) {
     $("#gallery-title").text(title);
     $("#gallery-info").text(info);
     var tbody = $("#gallery-table-body");
-    console.log(paths);
     tbody.empty();
     _.each(paths, function(path, i) {
-
-        console.log(document.URL);
         var skips = path.skips.length > 0 ? "with " + path.skips.length + pluralize(" skip", path.skips.length)  : ""
         var tr = $("<tr>");
         tr.append($("<td>").text(path.visits));
@@ -500,11 +624,32 @@ function showPathsInGallery(title, info, paths) {
 
         tr.click(
             function() {
-                var link_string = '?src_id=' + path.src.id + "&dest_id=" + path.dest.id + "&skip=" + path.skips.join(',');
-                window.location = link_string;
+                gotoPath(path.src.id, path.dest.id, path.skips);
             }
         );
         tbody.append(tr);
+    });
+}
+
+function showLongestPathsInGallery(paths) {
+    $(".results").hide();
+    $("#longest-path-gallery-table").show();
+    var tbody = $("#longest-path-gallery-table-body");
+    tbody.empty();
+    _.each(paths, function(path, i) {
+        if (path.skips.length == 0) {
+            var tr = $("<tr>");
+            tr.append($("<td>").text(path.path_length));
+            tr.append($("<td>").text(path.src.name));
+            tr.append($("<td>").text(path.dest.name));
+
+            tr.click(
+                function() {
+                    gotoPath(path.src.id, path.dest.id, path.skips);
+                }
+            );
+            tbody.append(tr);
+        }
     });
 }
 
@@ -561,7 +706,6 @@ function fetchMostPopularPaths() {
     var url = host + "popular_paths";
     $.getJSON(url, { start:0, count:30, _:now() },
         function(results) {
-            console.log('popular paths', results);
             if (results.status == "OK") {
                 showPathsInGallery("Most Popular Paths", 
                     "These are some of the frequently explored pathways in Six Degrees of Black Sabbath", results.paths)
@@ -581,10 +725,8 @@ function fetchLongestPaths() {
     var url = host + "longest_paths";
     $.getJSON(url, { start:0, count:100, _:now() },
         function(results) {
-            console.log('longest paths', results);
             if (results.status == "OK") {
-                showPathsInGallery("Longest Paths", 
-                "These are some of the longest paths discovered so far in Six Degrees of Black Sabbath", results.paths)
+                showLongestPathsInGallery(results.paths)
             } else {
                 error("trouble getting the longest paths: " + results.message);
             }
@@ -597,7 +739,6 @@ function fetchLongestPaths() {
 }
 
 function showArtistList(title, info, columnTitle, fieldName, artistList) {
-    console.log(title, artistList);
     $(".results").hide();
     $("#artist-table").show();
     $("#artist-info").text(info);
@@ -731,16 +872,30 @@ function initUI() {
     $(".results").hide();
     $("#go").click(generatePath);
 
-        // load the iFrame youtube player
-      var tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      var firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    $("#source").keyup( 
+        function(event) {
+            if (event.keyCode == 13) {
+                // $("#dest").focus();
+            }
+        }
+    );
+    $("#dest").keyup( 
+        function(event) {
+            if (event.keyCode == 13) {
+                // generatePath();
+            }
+        }
+    );
+
+    // load the iFrame youtube player
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 }
 
 
 function onPlayerReady(event) {
-    console.log('onPlayerReady', event);
     event.target.playVideo();
 }
 
@@ -752,11 +907,30 @@ function onPlayerStateChange(event) {
         }
         nowPlaying = event.target;
     }
-    console.log('onPlayerStateChange', event);
+}
+
+function tweetSetup() {
+    $(".twitter-share-button").remove();
+    var tweet = $('<a>')
+        .attr('href', "https://twitter.com/share")
+        .attr('id', "tweet")
+        .attr('class', "twitter-share-button")
+        .attr('data-lang', "en")
+        .attr('data-size', "large")
+        .attr('data-count', "none")
+        .text('Tweet');
+
+    $("#tweet-span").prepend(tweet);
+    tweet.attr('data-text', document.title + " #6dobs");
+    tweet.attr('data-url', document.URL);
+
+    // twitter can be troublesome. If it is not there, don't bother loading it
+    if ('twttr' in window) {
+        twttr.widgets.load();
+    }
 }
 
 function onYouTubeIframeAPIReady() {
-    console.log('youtube iframe API ready');
 }
 
 
@@ -764,7 +938,6 @@ $(document).ready(
     function() {
         initUI();
         fetchArtistNames();
-        console.log('ready');
         processParams();
     }
 );

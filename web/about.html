@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title> Six Degrees of Black Sabbath</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.3/yeti/bootstrap.min.css"> 
+     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+     <script src="lib/bootstrap3-typeahead.min.js"></script>
+     <link href="styles.css" rel="stylesheet" media="screen">
+</head>
+
+<body>
+
+<!-- Fixed navbar -->
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Six Degrees of Black Sabbath</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Gallery<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="index.html?gallery=top">Popular paths</a></li>
+            <li><a href="index.html?gallery=longest">Longest paths</a></li>
+            <li><a href="index.html?gallery=top_connected_artists">Most connected artists</a></li>
+            <li><a href="index.html?gallery=most_central_artists">Most central artists</a></li>
+            <li><a href="index.html?gallery=top_starting_artists">Top Starting Artists</a></li>
+            <li><a href="index.html?gallery=top_ending_artists">Top Ending Artists</a></li>
+            <li><a href="index.html?gallery=most_bypassed_artists">Most bypassed artists</a></li>
+          </ul>
+        </li>
+        <!--
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Feedback<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Propose an artist connection</a></li>
+          </ul>
+        </li>
+        -->
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="active"><a href="about.html">About</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Main component for a primary marketing message or call to action -->
+  <div class="jumbotron">
+    <h1>Six Degrees of Black Sabbath</h1>
+    <p> Finds paths between any two artists </p>
+  </div>
+  <div class="container">
+    <h2> About Six Degrees of Black Sabbath </h2>
+    <p>
+        Six Degrees of Black Sabbath is to music as the <a href="http://oracleofbacon.org/">Oracle of Bacon </a> is to movies. 
+        It allows you to find connections between artists based upon an artist's collaborations.
+    </p>
+    <h3> Some stats</h3>
+        <table class="table">
+            <tbody>
+                <tr> <th> Number of artists </th> <td id="num_artists"> </td> 
+                     <th> Number of connections </th> <td id="num_connections"> </td> </tr>
+                <tr> <th> Average connections per artist </th> <td id="avg_connections"> </td> 
+                     <th> Number of generated paths</th> <td id="generated_paths"> </td> </tr>
+                <tr> <th> Average path length </th> <td>  7 </td> 
+                     <th> Longest path between artists </th> <td> Unknown </td> </tr>
+            </tbody>
+        </table>
+    <h3> Frequently Asked Questions </h3>
+
+    <ul>
+        <li> <b> How does this work? </b> This <a
+href="http://musicmachinery.com/2010/05/20/six-degrees-of-black-sabbath/">
+                post on the Music Machinery blog</a> describes how Six Degrees of Black Sabbath works.
+        <li> <b> Hey! You didn't know that Rick Wakeman played backing harpsichord on Black Sabbath's Sabbra Cadabra. WTF?
+</b>  We know about millions of relations between artists, but we don't know all of them. You can add more relations by
+contributing to <a href="http://musicbrainz.org">MusicBrainz</a>
+        <li> <b> What do you mean by 'Six Degrees'? </b>  <a
+href="http://en.wikipedia.org/wiki/Six_degrees_of_separation">Six degrees</a> refers to the idea that everyone is at most
+six steps away from any other person on Earth, so that a chain of, "a friend of a friend" statements can be made to
+connect any two people in six steps or fewer. This is clearly not true in the music world - it is quite easy to find
+longer paths between artists.  But I use the term 'Six Degrees' to refer to the overall connectedness of the music world.
+        <li> <b> What is the average path length? </b>  Around 7
+        <li> <b> What is the longest path? </b>  It is a secret. People have found paths that are longer than 30.
+        <li> <b> Hey, I found two artists with no paths. Is this rare? </b> No, there are a number of non-connected
+clusters of artists.
+        <li> <b> You are missing an artist </b> That is not a question - but yes, there are some artists that are not in
+here. If you really think an artist should be in there let me know.
+        <li> <b> Who built this?</b> Paul Lamere - I work for a company called The Echo Nest. You can contact me at
+Paul@echonest.com. I have a blog where I write about music technology:  <a href="http://musicmachinery.com">Music
+Machinery</a>
+        <li> <b> What is The Echo Nest?</b> <a href="http://the.echonest.com">The Echo Nest</a> is a music intelligence
+company founded by Tristan Jehan and Brian Whitman, who met at the MIT Media Lab while they were both getting their PhDs
+in music understanding and synthesis research. The company has since grown to a small but insane team of developers,
+designers, musicians and business people all housed in a cozy office in Davis Square, Somerville, MA, USA. We grow an
+intelligence platform that automatically reads about and listens to the entire world of music for developers to build
+search, personalization and interactive music applications. 
+        <li> <b> How come when I skip an artist sometimes the path gets shorter?</b>  Paths are picked based upon the
+strength of the relationship.  A path that takes 4 steps may score better than a path with 3 steps if the relations in the
+4 step path are stronger.
+        <li> <b> Why is this app so ugly?</b> Because an engineer designed it. If you have design skills and would like to
+make it look better let me know.  I'll gladly give you credit with a link in the footer of the app.
+        <li> <b> Is this somehow related to The Oracle Of Bacon </b> - Clearly I was inspired by the awesome <a
+href="http://oracleofbacon.org">The Oracle of Bacon</a> but other than that, there's no connection. 
+        <li> <b> Why did you pick the name 'Six degrees of Black Sabbath' </b> I knew that if the name was 'Six Degrees of
+X' and X was a well-known music artist, people would 'get it' right away.  The most connected artist is Pigface - but they
+are not well known. Black Sabbath is pretty well connected and quite well known and so I chose them for this great honor.
+    </ul>
+    <p>
+
+  <footer>
+      <small>
+      <p> Written by <a href="http://twitter.com/plamere">Paul Lamere</a>.  Powered by <a href="http://the.echonest.com">The Echo Nest </a>,
+        <a href="http://youtube.com">YouTube</a> and <a href="http://musicbrainz.org">MusicBrainz</a>
+      </small>
+  </footer>
+  </div>
+
+<script>
+
+var host = "http://ec2-54-227-6-186.compute-1.amazonaws.com/6dobs/";
+
+function fetchStats() {
+    var url = host + "stats";
+    $.getJSON(url,  
+        function(data) {
+            console.log('fp', data);
+            if (data.status == 'OK') {
+                $("#num_artists").text(nc(data.stats.db_stats.graph_stats.nodes));
+                $("#num_connections").text(nc(data.stats.db_stats.graph_stats.connections));
+                $("#avg_connections").text(nc(Math.round(data.stats.db_stats.graph_stats.connections 
+                    / data.stats.db_stats.graph_stats.nodes)));
+                $("#generated_paths").text(nc(data.stats.api_stats.path));
+            }
+        },
+
+        function(data) {
+        }
+    );
+}
+
+function nc(x) {
+    return numberWithCommas(x);
+}
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+$(document).ready(
+    function() {
+        fetchStats();
+    }
+);
+</script>
+
+</body>
+</html>

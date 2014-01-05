@@ -1,4 +1,4 @@
-body {
+ody {
     padding-top:70px;
     min-height:1000px;
 }
@@ -12,7 +12,7 @@ body {
 
 .subtext {
     margin-top:30px;
-    margin-bottom:10px;
+    margin-bottom:30px;
     font-size:24px;
     text-align:center;
     margin-left:auto;
@@ -36,7 +36,7 @@ body {
 
 .bypass {
     position:absolute;
-    right:-14px;
+    left:-10px;
     top:-5px;
 }
 
@@ -49,9 +49,13 @@ body {
 }
 
 #search {
-    width:700px;
+    width:640px;
     margin-left:auto;
     margin-right:auto;
+}
+
+#info {
+    height:24px;
 }
 
 
@@ -69,6 +73,7 @@ body {
     background-position:center;
     background-repeat:no-repeat;
     overflow:hidden;
+    position:relative;
 }
 
 
@@ -81,4 +86,61 @@ footer {
     border-width:1px;
     border-color:#ccc;
     text-align:center;
+}
+
+.tweet {
+    width:960px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    margin-top:20px;
+    margin-bottom:30px;
+}
+
+.pathfooter-text {
+    margin-top:20px;
+    margin-bottom:10px;
+    font-size:14px;
+    text-align:center;
+    margin-left:auto;
+    margin-right:auto;
+    position:relative;
+}
+
+.skipped {
+    margin-right:8px;
+}
+
+#skiplist {
+    width:650px;
+    text-align:left;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:12px;
+}
+
+.playbutton {
+    width:60px;
+    top:4px;
+    left:4px;
+    position:absolute;
+    opacity:.4;
+}
+
+
+#report-video-info {
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#report-status {
+    margin-top:4px;
+    height:18px;
+    font-size:18px;
+    color:green;
+}
+
+#report-query {
+    margin:30px;
 }
