@@ -16,6 +16,7 @@ top_conn_artists = None
 bad_artists = set(['1', '97546'])  
 quick_mode = False
 cache_expiration_time = 60 * 60 * 24 * 7
+gstats = collections.defaultdict(int)
 
 
 '''
@@ -587,16 +588,45 @@ def get_raw_links(aid):
     return links
 
 
-def stats(aid):
-    paths = nx.single_source_dijkstra_path(G, aid)
-    print 'paths', len(paths)
+def stats():
+    stats = {
+        'graph_stats': gstats
+    }
+    return stats
 
-    path_list = [ (len(v),k) for k,v in paths.items()]
-    path_list.sort(reverse=True)
-    print 'longest:'
-    for l,p in path_list[:20]:
-        print l, artist_name(p)
+def report_video(vid, src, dest, q):
+    report = ','.join([vid, src, dest, q])
+    r.lpush('REPORTED-VIDEOS', report);
 
+def process_video(vid, src, dest, q):
+    report = ','.join([vid, src, dest, q])
+    r.lrem('REPORTED-VIDEOS', report, count=0);
+    r.lpush('PROCESSED-VIDEOS', report);
+
+def get_video_reports(start, count):
+    reports = r.lrange('REPORTED-VIDEOS', start, start + count - 1)
+    out_list = []
+    for rep in reports:
+        vid, src, dest,q = rep.split(',')
+        asrc, adest = artist_get([src, dest])
+        report = {
+            'src': asrc,
+            'dest': adest,
+            'video':vid,
+            'query':q
+        }
+        out_list.append(report)
+
+    total = r.llen('REPORTED-VIDEOS')
+    processed = r.llen('PROCESSED-VIDEOS')
+    out = {
+        'reports': out_list,
+        'start' : start,
+        'count' : count,
+        'total':  total,
+        'processed':  processed
+    }
+    return out
 
 def populate_links_full(links):
     p = r.pipeline()
@@ -707,10 +737,9 @@ def prep_graph():
     calc_top_connected_artists()
     print 'artists:', gstats['nodes']
     print 'edges:', gstats['edges']
-    print 'size', sys.getsizeof(G)
+    print 'connections:', gstats['connections']
         
 
-gstats = collections.defaultdict(int)
 
 def _add_weighted_links(i, key):
     all = r.smembers(key)
@@ -760,6 +789,9 @@ def _add_weighted_links(i, key):
         elif weight > 10 and nconns > 2:
             weight = 10
 
+        gstats['edges'] += 1
+        gstats['connections'] += len(weights)
+
         if G.has_edge(lsrc, dest):
             prev_weight = G[lsrc][dest]['weight']
             if weight < prev_weight:
@@ -767,7 +799,6 @@ def _add_weighted_links(i, key):
                 G[lsrc][dest]['conns'] = nconns
                 G[lsrc][dest]['lt'] = best_type[dest]
         else:
-            gstats['edges'] += 1
             G.add_edge(lsrc, dest, weight=weight, conns=nconns, lt=best_type[dest])
         
 def nweight(weight):

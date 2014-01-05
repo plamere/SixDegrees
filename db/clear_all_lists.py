@@ -3,7 +3,7 @@ import redis
 r = redis.StrictRedis(host='localhost', port=6380, db = 1)
 
 all_lists = [ 'MOST-FREQUENT-PATHS', 'LONGEST-PATHS', 'MOST-CENTRAL-ARTISTS', 
-        'MOST-BYPASSED-ARTISTS', 'STARTING-ARTISTS', 'ENDING-ARTISTS']
+        'MOST-BYPASSED-ARTISTS', 'STARTING-ARTISTS', 'ENDING-ARTISTS', 'REPORTED-VIDEOS', 'PROCESSED-VIDEOS']
 
 
 def delete_all_lists():

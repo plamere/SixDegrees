@@ -200,6 +200,39 @@ class SixDegrees(object):
             return seal_results(results, 'ERROR', "bad value for count")
         return seal_results(results)
 
+    @cherrypy.expose
+    @tools.json_out()
+    def stats(self, _=None):
+        log_api_call('stats')
+        results = get_results()
+        stats = {
+            'db_stats' : db.stats(),
+            'api_stats' : get_api_call_stats()
+        }
+        results['stats'] = stats
+        return seal_results(results)
+
+    @cherrypy.expose
+    @tools.json_out()
+    def report_video(self, video_id='', src='', dest='', q='', _=None):
+        log_api_call('report_video')
+        db.report_video(video_id, src, dest, q)
+        results = get_results()
+        return seal_results(results)
+
+    @cherrypy.expose
+    @tools.json_out()
+    def reported_videos(self, start='0', count='10',  _=None):
+        log_api_call('report_video')
+        results = get_results()
+        try:
+            start = int(start)
+            count = int(count)
+            results['reported_videos'] = db.get_video_reports(start, count)
+        except ValueError:
+            return seal_results(results, 'ERROR', "bad value for start or count")
+        return seal_results(results)
+
 
 def asearch(q):
     if len(q) > 0:
@@ -243,6 +276,10 @@ def log_api_call(method):
     p.hincrby('api_stats', method, 1)
     p.hincrby('api_stats', 'total_calls', 1)
     p.execute()
+
+
+def get_api_call_stats():
+    return db.r.hgetall('api_stats')
 
 if __name__ == '__main__':
     cherrypy.tools.CORS = cherrypy.Tool('before_handler', CORS)
