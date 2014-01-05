@@ -10,6 +10,11 @@ ody {
     text-align:center;
 }
 
+#my-favorites {
+    width:960px;
+    margin-left:40px;
+}
+
 .subtext {
     margin-top:30px;
     margin-bottom:30px;

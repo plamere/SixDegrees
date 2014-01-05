@@ -100,6 +100,16 @@
         </table>
   </div>
 
+<!--
+  <div class="results" id="my-favorites"> 
+        <h3> Try some of our favorites: </h3>
+        <ul>
+            <a href="?src_id=1615&dest_id=102192"> Jars of Clay Aiken </a>  ---
+            <a href="src_id=299&dest_id=309011"> Fleetwood Macklemore </a>
+        </ul>
+  </div>
+-->
+
   <div class="results" id="longest-path-gallery-table"> 
         <h3 id="longest-path-gallery-title"> Longest Paths </h3>
         <div class="longest-path-info-text" id="gallery-info">
@@ -188,8 +198,8 @@
 <script>
 
 
-var host = "http://localhost:9922/6dobs/";
 var host = "http://ec2-54-227-6-186.compute-1.amazonaws.com/6dobs/";
+var host = "http://localhost:9922/6dobs/";
 jQuery.ajaxSettings.traditional = true;  
 var theSkipList = [];
 var nowPlaying = null;
@@ -378,7 +388,7 @@ function showPath(data) {
     li.append(sub);
     li.append(ytdiv);
     var link = data.path.links[0];
-    youtubeSearch(link.src_name, ytdiv, link, WHICH_SRC);
+    youtubeSearch(link.src_query, ytdiv, link, WHICH_SRC);
     ul.append(li);
 
     _.each(data.path.links, function(link, index, list) {
@@ -396,13 +406,13 @@ function showPath(data) {
             }
             sub.html(link.src_name + " " + slink.phrase + " " 
                 + aname(link.dest_name, link.dest) + ' on the song <b>' + slink.song + "</b>" + others);
-            youtubeSearch(link.src_name + " " + link.dest_name, ytdiv, link, WHICH_BOTH);
+            youtubeSearch(link.src_query + " " + link.dest_query, ytdiv, link, WHICH_BOTH);
         } else {
             sub.html(link.src_name + " " + slink.phrase + " " + aname(link.dest_name, link.dest));
             if (false && isSingleWord(link.src_name)) {
-                youtubeSearch(link.src_name + " " + link.dest_name, ytdiv, link, WHICH_BOTH);
+                youtubeSearch(link.src_query + " " + link.dest_query, ytdiv, link, WHICH_BOTH);
             } else {
-                youtubeSearch(link.dest_name, ytdiv, link, WHICH_DEST);
+                youtubeSearch(link.dest_query, ytdiv, link, WHICH_DEST);
             }
         }
         var name = $("<h2>").text(link.src_name);
@@ -590,6 +600,7 @@ function processParams() {
             fetchTopEndingArtists();
         }
     } else {
+        $("#my-favorites").show();
     }
 }
 
