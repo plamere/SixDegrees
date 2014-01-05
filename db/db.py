@@ -441,11 +441,15 @@ def artist_neighbors_old_and_heavy(aid):
     }
     for naid in aids:
         total_links, top_links = get_links_between(aid, naid)
+        sname, squery = artist_info(aid)
+        dname, dquery = artist_info(naid)
         l = {
             'src':aid,
-            'src_name':artist_name(aid),
+            'src_name':sname,
+            'src_query':squery,
             'dest':naid,
-            'dest_name':artist_name(naid),
+            'dest_name':dname,
+            'dest_name':dquery,
             'links' : top_links,
             'total_links' : total_links,
             'score': nweight(G[aid][naid]['weight'])
@@ -508,11 +512,15 @@ def get_path(aids):
         aid = aids[i]
         next = aids[i + 1]
         total_links, top_links = get_links_between(aid, next)
+        sname, squery = artist_info(aid)
+        dname, dquery = artist_info(next)
         l = {
             'src':aid,
-            'src_name':artist_name(aid),
+            'src_name':sname,
+            'src_query':squery,
             'dest':next,
-            'dest_name':artist_name(next),
+            'dest_name':dname,
+            'dest_query':dquery,
             'links' : top_links,
             'total_links' : total_links,
             'score': nweight(G[aid][next]['weight'])
@@ -683,6 +691,15 @@ def link_name(type):
 
 def artist_name(aid):
     return r.hget("ARTIST:" + str(aid), 'name')
+
+def artist_info(aid):
+    p = r.pipeline()
+    p.hget("ARTIST:" + str(aid), 'name')
+    p.hget("ARTIST:" + str(aid), 'query')
+    results = p.execute()
+    if results[1] == None:
+        results[1] = results[0]
+    return results
 
 def artist_names(aids):
     p = r.pipeline()
