@@ -198,8 +198,8 @@
 <script>
 
 
-var host = "http://ec2-54-227-6-186.compute-1.amazonaws.com/6dobs/";
 var host = "http://localhost:9922/6dobs/";
+var host = "http://labs2.echonest.com/6dobs/";
 jQuery.ajaxSettings.traditional = true;  
 var theSkipList = [];
 var nowPlaying = null;
@@ -910,6 +910,10 @@ function onPlayerReady(event) {
     event.target.playVideo();
 }
 
+function ga_track(page, action, id) {
+    _gaq.push(['_trackEvent', page, action, id]);
+}
+
 function onPlayerStateChange(event) {
     if (event.data == 1) {
         if (nowPlaying) {
@@ -952,6 +956,21 @@ $(document).ready(
         processParams();
     }
 );
+
+</script>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3675615-11']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type =
+'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
+'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0];
+s.parentNode.insertBefore(ga, s);
+  })();
 
 </script>
 </body>

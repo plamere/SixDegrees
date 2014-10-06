@@ -233,6 +233,15 @@ class SixDegrees(object):
             return seal_results(results, 'ERROR', "bad value for start or count")
         return seal_results(results)
 
+    @cherrypy.expose
+    @tools.json_out()
+    def video_query(self, aid='', query='',  _=None):
+        log_api_call('report_video')
+        results = get_results()
+        ainfo = db.set_query_string(aid, query)
+        results['results'] = ainfo
+        return seal_results(results)
+
 
 def asearch(q):
     if len(q) > 0:

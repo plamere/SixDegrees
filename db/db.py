@@ -316,7 +316,8 @@ def save_path_to_db(start, end, length, skips, aids):
     p =  r.pipeline()
     p.zincrby('MOST-FREQUENT-PATHS', sentry, 1)
     p.zadd('LONGEST-PATHS', length, sentry)
-    p.zremrangebyrank("LONGEST-PATHS",  250, -1)
+    # keep the highest 250 scoring paths
+    p.zremrangebyrank("LONGEST-PATHS",  0, -251)
     for aid in aids[1:-1]:
         p.zincrby('MOST-CENTRAL-ARTISTS', aid, 1)
     for aid in slist:
@@ -722,6 +723,13 @@ def init(quick=False):
         _build_graph()
         #_build_beatle_graph()
 
+def set_query_string(aid, query):
+    key = 'ARTIST:' + aid
+    if query == '(delete)':
+        r.hdel(key, 'query')
+    elif len(query) > 0:
+        r.hset(key, 'query', query)
+    return r.hgetall(key)
 
 def calc_top_connected_artists():
     top = collections.defaultdict(int)
